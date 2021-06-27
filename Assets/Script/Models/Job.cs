@@ -19,7 +19,7 @@ public class Job
 
     public Job (Tile tile,string jobObjectType, Action<Job> cbJobComplete, float jobTime = 1f) {
         this.tile = tile;
-        this.jobObjectType = jobObjectType;  
+        this.jobObjectType = jobObjectType;
         this.cbJobComplete += cbJobComplete;
         this.jobTime = jobTime;
     }

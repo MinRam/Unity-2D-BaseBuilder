@@ -58,7 +58,7 @@ public class Character
             }
         }
 
-        if (myJob != null && isTouchDistance(destTile, currTile)) {
+        if (myJob != null && isTouchDistance(myJob.tile, currTile)) {
             myJob.DoWork(deltaTime);
         }
     }
@@ -96,10 +96,6 @@ public class Character
 
             // Grab the next waypoint from the pathing system.
             nextTile = pathAStar.Dequeue();
-
-            if (nextTile == currTile) {
-                Debug.LogError("Update_DoMovement: nextTile is currenTile.");
-            }
         }
 
 
@@ -163,7 +159,10 @@ public class Character
 
         pathAStar = null;
 
+        myJob.UnRegisterJobCompleteCallback(OnJobEnded);
+        myJob.UnRegisterJobCancelCallback(OnJobEnded);
         currTile.World.jobQueue.Enqueue(myJob);
+
         myJob = null;
     }
 

@@ -31,7 +31,8 @@ public class JobSpriteController : MonoBehaviour
             jobGameObjectMap.Add(j, job_go);
         }
         else
-            job_go = jobGameObjectMap[j];
+            // Job Already Created.
+            return;
 
         job_go.name = "JOB" + j.jobObjectType + "_" +j.tile.X + "_" + j.tile.Y ;
         job_go.transform.position = WorldController.Instance.GetTilePositionAtWorldCoord(j.tile);
