@@ -45,7 +45,7 @@ public class Character
     public Character(Tile tile) {
         // Debug.Log("Create character at x:" + tile.X + ",y:" + tile.Y);
         currTile = destTile = nextTile = tile;
-        touchDistance = 1f;
+        touchDistance = 2f;
     }
 
     void Update_DoJob(float deltaTime) {
@@ -69,7 +69,7 @@ public class Character
 
             foreach(Tile neighbour in neighbours) {
                 if (neighbour != null &&  neighbour.movementCost > 0) {
-                    destTile = neighbour;
+                    destTile = nextTile = neighbour;
                     return;
                 }
             }
@@ -86,7 +86,7 @@ public class Character
                 // Generate a path to our destination.
                 pathAStar = new Path_AStar(currTile.World, currTile, destTile, isTouchDistance);
                 if (pathAStar.Length() == 0) {
-                    Debug.LogError("The Path_AStar returned no path to destination.");
+                    // Debug.LogError("The Path_AStar returned no path to destination.");
                     // FIXME: Job should maybe be re-enqueue instead?
                     OnJobAbandon();
                     pathAStar = null;
@@ -159,8 +159,11 @@ public class Character
 
         pathAStar = null;
 
-        myJob.UnRegisterJobCompleteCallback(OnJobEnded);
-        myJob.UnRegisterJobCancelCallback(OnJobEnded);
+        if (myJob != null) {
+            myJob.UnRegisterJobCompleteCallback(OnJobEnded);
+            myJob.UnRegisterJobCancelCallback(OnJobEnded);
+        }
+
         currTile.World.jobQueue.Enqueue(myJob);
 
         myJob = null;

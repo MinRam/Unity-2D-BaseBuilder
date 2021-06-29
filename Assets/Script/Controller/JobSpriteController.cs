@@ -22,16 +22,18 @@ public class JobSpriteController : MonoBehaviour
     }
 
     void OnJobCreated(Job j) {
-        Debug.Log("new Job create at " + j.tile.X + "_" + j.tile.Y);
+
         if (j == null) return;
 
         GameObject job_go;
         if (!jobGameObjectMap.ContainsKey(j)) {
+            // Debug.Log("new Job create at " + j.tile.X + "_" + j.tile.Y);
             job_go = new GameObject();
             jobGameObjectMap.Add(j, job_go);
         }
         else
             // Job Already Created.
+            // Debug.Log("Job reflesh at " + j.tile.X + "_" + j.tile.Y);
             return;
 
         job_go.name = "JOB" + j.jobObjectType + "_" +j.tile.X + "_" + j.tile.Y ;
@@ -49,7 +51,7 @@ public class JobSpriteController : MonoBehaviour
     }
 
     void OnJobEnded(Job j) {
-        GameObject job_go = jobGameObjectMap[j];    
+        GameObject job_go = jobGameObjectMap[j];
 
         j.UnRegisterJobCompleteCallback(OnJobEnded);
         j.UnRegisterJobCancelCallback(OnJobEnded);

@@ -16,12 +16,12 @@ public class Path_AStar
         Dictionary<Tile, Path_Node<Tile>> nodes = world.tileGraph.nodes;
 
         if (!nodes.ContainsKey(tileStart)) {
-            Debug.LogError("Path_AStar: The starting tile isn't in the list of nodes.");
+            // Debug.LogError("Path_AStar: The starting tile isn't in the list of nodes.");
             return;
         }
 
         if (!nodes.ContainsKey(tileEnd)) {
-            Debug.LogError("Path_AStar: The ending tile isn't in the list of nodes.");
+            // Debug.LogError("Path_AStar: The ending tile isn't in the list of nodes.");
             return;
         }
 
