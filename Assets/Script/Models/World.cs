@@ -1,12 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using UnityEngine;
 
-public class World {
+public class World : IXmlSerializable {
 
     Tile[,] tiles;
-    List<Character> characters;
+    public List<Character> characters;
+    public List<Furniture> furnitures;
     public Path_TileGraph tileGraph;
 
     Dictionary<string, Furniture> furniturePrototypes;
@@ -21,7 +25,13 @@ public class World {
 
     public int Height { get; protected set;}
 
-    public World(int width = 50, int height = 50) {
+    public World(int width, int height) {
+        SetupWorld(width,height);
+
+        CreateCharacter(GetTileAt(Width/2  , Height/2 ));
+    }
+
+    protected void SetupWorld(int width, int height) {
         jobQueue = new JobQueue();
 
         this.Width = width;
@@ -39,6 +49,7 @@ public class World {
         CreateFurniturePrototypes();
 
         characters = new List<Character>();
+        furnitures = new List<Furniture>();
     }
 
     public void Update(float deltaTime) {
@@ -79,22 +90,26 @@ public class World {
         return installedObject;
     }
 
-    public void PlaceFurniture(string objectType, Tile t) {
+    public Furniture PlaceFurniture(string objectType, Tile t) {
         // TOD: This function assumes 1x1 tiles -- change this later!
 
         if (!furniturePrototypes.ContainsKey(objectType)) {
             Debug.LogError("FurnituretPrototypes doesn't contain a proto for key: " + objectType);
-            return;
+            return null;
         }
 
         Furniture obj = Furniture.PlaceInstance(furniturePrototypes[objectType], t);
 
-        if (null == obj) return;
+        furnitures.Add(obj);
+
+        if (null == obj) return null;
 
         if (cbFurnitureCreated != null) {
             cbFurnitureCreated(obj);
             InvalidateTileGraph(t);
         }
+
+        return obj;
     }
 
     public void RegisterFurnitureCreated(Action<Furniture> callbackfunc) {
@@ -149,11 +164,11 @@ public class World {
             for (int y = 0; y < Height; ++y)
             {
                 if (UnityEngine.Random.Range(0,2) == 0) {
-                    tiles[x,y].Type = Tile.TileType.Empty;
+                    tiles[x,y].Type = TileType.Empty;
                 }
                 else
                 {
-                    tiles[x,y].Type = Tile.TileType.Floor;
+                    tiles[x,y].Type = TileType.Floor;
                 }
             }
         }
@@ -168,5 +183,122 @@ public class World {
             return null;
         }
         return furniturePrototypes[objectType];
+    }
+
+    /////////////////////////////////////////
+    ///
+    ///    Saving & Loading
+    ///
+    /////////////////////////////////////////
+
+    public World() {}
+
+    public XmlSchema GetSchema() {
+        return null;
+    }
+
+    public void WriteXml(XmlWriter writer) {
+        // save info here.
+        Debug.Log("Save xml");
+
+        writer.WriteAttributeString("Width", Width.ToString());
+        writer.WriteAttributeString("Height", Height.ToString());
+
+        writer.WriteStartElement("Tiles");
+        for (int x = 0; x < Width; ++x) {
+            for (int y = 0; y < Height; ++y) {
+                if (tiles[x,y].Type != TileType.Empty) {
+                    writer.WriteStartElement("Tile");
+                    tiles[x,y].WriteXml(writer);
+                    writer.WriteEndElement();
+                }
+            }
+        }
+        writer.WriteEndElement();
+
+        writer.WriteStartElement("Furnitures");
+        foreach (Furniture furniture in furnitures) {
+            writer.WriteStartElement("Furniture");
+            furniture.WriteXml(writer);
+            writer.WriteEndElement();
+        }
+        writer.WriteEndElement();
+
+         writer.WriteStartElement("Characters");
+        foreach (Character character in characters) {
+            writer.WriteStartElement("Character");
+            character.WriteXml(writer);
+            writer.WriteEndElement();
+        }
+        writer.WriteEndElement();
+
+    }
+
+    public void ReadXml(XmlReader reader) {
+        // read info here.
+        Debug.Log("Read xml");
+
+        int width = int.Parse(reader.GetAttribute("Width"));
+        int height = int.Parse(reader.GetAttribute("Height"));
+
+        SetupWorld(width,height);
+
+        while (reader.Read()) {
+            switch (reader.Name) {
+                case "Tiles":
+                    ReadXml_Tiles(reader);
+                    break;
+                case "Furnitures":
+                    ReadXml_Furnitures(reader);
+                    break;
+                case "Characters":
+                    ReadXml_Characters(reader);
+                    break;
+                default:
+                    Debug.Log("Unknow Name:" + reader.Name);
+                    break;
+            }
+        }
+        reader.MoveToElement();
+    }
+
+    void ReadXml_Tiles(XmlReader reader) {
+        while (reader.Read()) {
+            if (reader.Name != "Tile")
+                return;
+
+            int x = int.Parse(reader.GetAttribute("X"));
+            int y = int.Parse(reader.GetAttribute("Y"));
+
+            tiles[x, y].ReadXml(reader);
+        }
+    }
+
+    void ReadXml_Furnitures(XmlReader reader) {
+        while (reader.Read()) {
+            if (reader.Name != "Furniture")
+                return;
+
+            int x = int.Parse(reader.GetAttribute("X"));
+            int y = int.Parse(reader.GetAttribute("Y"));
+
+            Furniture furn = PlaceFurniture(reader.GetAttribute("objectType"), tiles[x,y]);
+
+            furn.ReadXml(reader);
+        }
+    }
+
+    void ReadXml_Characters(XmlReader reader) {
+        while (reader.Read()) {
+            if (reader.Name != "Character")
+                return;
+
+            int x = int.Parse(reader.GetAttribute("X"));
+            int y = int.Parse(reader.GetAttribute("Y"));
+
+            Character c = CreateCharacter(tiles[x, y]);
+
+            c.ReadXml(reader);
+        }
     }
 }

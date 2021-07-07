@@ -7,7 +7,7 @@ using System;
 public class BuildModeController : MonoBehaviour
 {
     bool buildModeIsObject = false;
-    Tile.TileType buildModeTile = Tile.TileType.Floor;
+    TileType buildModeTile = TileType.Floor;
     string        buildModeInstalledObject;
 
     // Start is called before the first frame update
@@ -17,12 +17,12 @@ public class BuildModeController : MonoBehaviour
 
     public void SetMode_BuildFloor(){
         buildModeIsObject = false;
-        buildModeTile = Tile.TileType.Floor;
+        buildModeTile = TileType.Floor;
     }
 
     public void SetMode_Bullldoze() {
         buildModeIsObject = false;
-        buildModeTile = Tile.TileType.Empty;
+        buildModeTile = TileType.Empty;
     }
 
     public void SetMode_BuildInstalledObject(string objectType) {

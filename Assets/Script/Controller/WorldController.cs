@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Xml.Serialization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System;
@@ -10,6 +13,7 @@ public class WorldController : MonoBehaviour
     public static WorldController Instance {get; protected set;}
     public World world {get; protected set;}
 
+    static bool loadWorld = false;
 
     // Start is called before the first frame update
     void OnEnable()
@@ -20,12 +24,12 @@ public class WorldController : MonoBehaviour
 
         Instance = this;
 
-        world = new World();
-
-        Tile centerTile = world.GetTileAt(world.Width / 2, world.Height / 2);
-        Vector3  centerPosition = GetTilePositionAtWorldCoord(centerTile);
-        centerPosition.z = Camera.main.transform.position.z;
-        Camera.main.transform.position = centerPosition;
+        if (loadWorld) {
+            loadWorld = false;
+            CreateWorldFromSavedFile();
+        }
+        else
+            CreateEmptyWorld();
     }
 
     // Update is called once per frame
@@ -48,5 +52,54 @@ public class WorldController : MonoBehaviour
         Vector3 worldPosition = this.transform.position;
 
         return new Vector3(worldPosition.x + tile.X, worldPosition.y + tile.Y, 0);
+    }
+
+    public void NewWorld() {
+        Debug.Log("New World");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void SaveWorld() {
+        Debug.Log("Save World");
+
+        XmlSerializer serializer = new XmlSerializer(typeof(World));
+        TextWriter writer = new StringWriter();
+        serializer.Serialize(writer, world);
+        writer.Close();
+
+        // Debug.Log(writer.ToString());
+
+        PlayerPrefs.SetString("SaveGame00", writer.ToString());
+    }
+
+    public void LoadWorld() {
+        Debug.Log("Load World");
+        loadWorld = true;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    void CreateEmptyWorld() {
+        world = new World(100, 100);
+
+        Tile centerTile = world.GetTileAt(world.Width / 2, world.Height / 2);
+        Vector3  centerPosition = GetTilePositionAtWorldCoord(centerTile);
+        centerPosition.z = Camera.main.transform.position.z;
+        Camera.main.transform.position = centerPosition;
+    }
+
+    void CreateWorldFromSavedFile() {
+
+        XmlSerializer serializer = new XmlSerializer(typeof(World));
+        TextReader reader = new StringReader(PlayerPrefs.GetString("SaveGame00"));
+
+        Debug.Log(reader.ToString());
+
+        world = (World) serializer.Deserialize(reader);
+        reader.Close();
+
+        Tile centerTile = world.GetTileAt(world.Width / 2, world.Height / 2);
+        Vector3  centerPosition = GetTilePositionAtWorldCoord(centerTile);
+        centerPosition.z = Camera.main.transform.position.z;
+        Camera.main.transform.position = centerPosition;
     }
 }

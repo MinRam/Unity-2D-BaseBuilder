@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Furniture
+public class Furniture : IXmlSerializable
 {
     // This represents the BASE ile of the object , but in practice, large objects may 
     // actually occupy multile tiles.
@@ -73,7 +76,7 @@ public class Furniture
             for (int index_x = x - 1; index_x <= x + 1; ++index_x) {
                 for (int index_y = y - 1; index_y <= y+ 1; ++ index_y) {
                     t = tile.World.GetTileAt(index_x, index_y);
-                    if (t != null && t != tile && t.furniture != null && t.furniture.objectType == proto.objectType) {
+                    if (t != null && t != tile && t.furniture != null && t.furniture.objectType == proto.objectType && t.furniture.cbOnChanged != null) {
                         t.furniture.cbOnChanged(t.furniture);
                     }
                 }
@@ -195,7 +198,7 @@ public class Furniture
     public bool __IsValidPosition(Tile t) {
         // Make sure tile is Floor
         // Make sure tile doesn't already have furniture
-        if (t.Type != Tile.TileType.Floor) {
+        if (t.Type != TileType.Floor) {
             return false;
         }
 
@@ -211,5 +214,28 @@ public class Furniture
             return false;
         }
         return true;
+    }
+
+    //////////////////////////////////
+    ///
+    ///   Saving & Loading
+    ///
+    /////////////////////////////////
+
+    public XmlSchema GetSchema() {
+        return null;
+    }
+
+    public void WriteXml(XmlWriter writer) {
+        writer.WriteAttributeString("X", tile.X.ToString());
+        writer.WriteAttributeString("Y", tile.Y.ToString());
+        writer.WriteAttributeString("objectType", objectType.ToString());
+        writer.WriteAttributeString("movementCost", movementCost.ToString());
+    }
+
+    public void ReadXml(XmlReader reader) {
+        // X, Y and objectType have already been set and we should already
+        // be assigned to a tile . so just read extra data.
+        movementCost = int.Parse(reader.GetAttribute("movementCost"));
     }
 }
