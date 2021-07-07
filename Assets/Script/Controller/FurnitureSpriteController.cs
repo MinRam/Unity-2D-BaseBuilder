@@ -22,6 +22,10 @@ public class FurnitureSpriteController : MonoBehaviour
         furnitureGameObjectMap = new Dictionary<Furniture, GameObject>();
 
         world.RegisterFurnitureCreated(OnFurnitureCreated);
+
+        foreach (Furniture furniture in world.furnitures) {
+            OnFurnitureCreated(furniture);
+        }
     }
 
     void LoadSprite() {

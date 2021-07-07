@@ -19,8 +19,9 @@ public class CharacterSpriteController : MonoBehaviour
 
         world.RegisterCharacterCreated(OnCharacterCreated);
 
-        // Debug
-        Character c =  world.CreateCharacter(world.GetTileAt(world.Width/2 - 5 , world.Height/2 - 5));
+        foreach (Character c in world.characters) {
+            OnCharacterCreated(c);
+        }
     }
 
     // Update is called once per frame

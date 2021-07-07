@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Character
+public class Character : IXmlSerializable
 {
     public float X {
         get{
@@ -36,7 +39,7 @@ public class Character
 
     float movementPercentage; // Goes from 0 to 1 as we move from currTile to desTile.
 
-    float speed = 4f;         // Tiles per second
+    float speed = 7f;         // Tiles per second
 
     Action<Character> cbCharacterChanged;
 
@@ -176,5 +179,25 @@ public class Character
         }
 
         myJob = null;
+    }
+
+    //////////////////////////////////
+    ///
+    ///   Saving & Loading
+    ///
+    /////////////////////////////////
+
+    public XmlSchema GetSchema() {
+        return null;
+    }
+
+    public void WriteXml(XmlWriter writer) {
+        writer.WriteAttributeString("X", currTile.X.ToString());
+        writer.WriteAttributeString("Y", currTile.Y.ToString());
+        writer.WriteAttributeString("speed", speed.ToString());
+        writer.WriteAttributeString("touchDistance", touchDistance.ToString());
+    }
+
+    public void ReadXml(XmlReader reader) {
     }
 }

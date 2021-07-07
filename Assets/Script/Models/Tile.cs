@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using UnityEngine;
 
-
-public class Tile {
-    public enum TileType {Empty, Floor};
-
+public enum TileType {Empty, Floor};
+public class Tile : IXmlSerializable{
     Action<Tile> cbTileTypeChanged;
 
     TileType _type = TileType.Empty;
@@ -93,5 +94,27 @@ public class Tile {
         }
 
         return ns;
+    }
+
+    //////////////////////////////////
+    ///
+    ///   Saving & Loading
+    ///
+    /////////////////////////////////
+
+    public XmlSchema GetSchema() {
+        return null;
+    }
+
+    public void WriteXml(XmlWriter writer) {
+        writer.WriteAttributeString("X", X.ToString());
+        writer.WriteAttributeString("Y", Y.ToString());
+        writer.WriteAttributeString("Type", ((int)Type).ToString());
+    }
+
+    public void ReadXml(XmlReader reader) {
+        // int x = int.Parse(reader.GetAttribute("X"));
+        // int y = int.Parse(reader.GetAttribute("Y"));
+        Type = (TileType) int.Parse(reader.GetAttribute("Type"));
     }
 }

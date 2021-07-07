@@ -39,9 +39,11 @@ public class TileSpriteController : MonoBehaviour
 
                 SpriteRenderer tile_sprite =  tile_go.AddComponent<SpriteRenderer>();
                 tile_sprite.sprite = emptySprite;
+
+                OnTileChanged(tile_data);
             }
         }
-        
+
         world.RegisterTileChanged(OnTileChanged);
     }
 
@@ -72,9 +74,9 @@ public class TileSpriteController : MonoBehaviour
         }
 
 
-        if (tile_data.Type == Tile.TileType.Floor) {
+        if (tile_data.Type == TileType.Floor) {
             tile_go.GetComponent<SpriteRenderer>().sprite = floorSprite;
-        } else if (tile_data.Type == Tile.TileType.Empty) {
+        } else if (tile_data.Type == TileType.Empty) {
             tile_go.GetComponent<SpriteRenderer>().sprite = emptySprite;
         } else {
             Debug.LogError("OnTileTypeChanged - Unrecognized tile type:" + tile_data.Type);
