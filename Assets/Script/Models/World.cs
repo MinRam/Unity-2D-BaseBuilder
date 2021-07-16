@@ -56,6 +56,10 @@ public class World : IXmlSerializable {
         foreach(Character c in characters) {
             c.Update(deltaTime);
         }
+
+        foreach(Furniture f in furnitures) {
+            f.Update(deltaTime);
+        }
     }
 
     public Character CreateCharacter(Tile t) {
@@ -76,17 +80,30 @@ public class World : IXmlSerializable {
         }
 
         CreateFurniturePrototype("Wall",
-                        Furniture.CreatePrototype("Wall",
-                                                        0,   // Impassable
-                                                        1,   // Width
-                                                        1,   // Height
-                                                        true // Links to neighbours and "sort of" becomes part of a large object.
-                                                    ));
+                        new Furniture("Wall",
+                                    0,   // Impassable
+                                    1,   // Width
+                                    1,   // Height
+                                    true // Links to neighbours and "sort of" becomes part of a large object.
+                        ));
+
+        CreateFurniturePrototype("Door",
+                        new Furniture("Door",
+                                    0,   // Impassable
+                                    1,   // Width
+                                    1,   // Height
+                                    true // Links to neighbours and "sort of" becomes part of a large object.
+                        ));
+
+        // What if the object behaviours were scriptale? and therefore were part of the text file
+        // we are reading in now?
+        furniturePrototypes["Door"].furnParams["openess"] = 0;
+        furniturePrototypes["Door"].updateActions += FurnitureActions.Door_UpdateAction;
     }
 
     Furniture CreateFurniturePrototype(string objectName, Furniture installedObject) {
         // Debug.Log("Preload InstalledObject:" + objectName);
-        furniturePrototypes.Add("Wall", installedObject);
+        furniturePrototypes.Add(objectName, installedObject);
         return installedObject;
     }
 
@@ -235,9 +252,6 @@ public class World : IXmlSerializable {
     }
 
     public void ReadXml(XmlReader reader) {
-        // read info here.
-        Debug.Log("Read xml");
-
         int width = int.Parse(reader.GetAttribute("Width"));
         int height = int.Parse(reader.GetAttribute("Height"));
 
@@ -263,42 +277,39 @@ public class World : IXmlSerializable {
     }
 
     void ReadXml_Tiles(XmlReader reader) {
-        while (reader.Read()) {
-            if (reader.Name != "Tile")
-                return;
+        if ( reader.ReadToDescendant("Tile")) {
+            do {
+                int x = int.Parse(reader.GetAttribute("X"));
+                int y = int.Parse(reader.GetAttribute("Y"));
 
-            int x = int.Parse(reader.GetAttribute("X"));
-            int y = int.Parse(reader.GetAttribute("Y"));
-
-            tiles[x, y].ReadXml(reader);
+                tiles[x, y].ReadXml(reader);
+            } while (reader.ReadToNextSibling("Tile"));
         }
     }
 
     void ReadXml_Furnitures(XmlReader reader) {
-        while (reader.Read()) {
-            if (reader.Name != "Furniture")
-                return;
+        if ( reader.ReadToDescendant("Furniture")) {
+            do {
+                int x = int.Parse(reader.GetAttribute("X"));
+                int y = int.Parse(reader.GetAttribute("Y"));
 
-            int x = int.Parse(reader.GetAttribute("X"));
-            int y = int.Parse(reader.GetAttribute("Y"));
+                Furniture furn = PlaceFurniture(reader.GetAttribute("objectType"), tiles[x,y]);
 
-            Furniture furn = PlaceFurniture(reader.GetAttribute("objectType"), tiles[x,y]);
-
-            furn.ReadXml(reader);
+                furn.ReadXml(reader);
+            } while (reader.ReadToNextSibling("Furniture"));
         }
     }
 
     void ReadXml_Characters(XmlReader reader) {
-        while (reader.Read()) {
-            if (reader.Name != "Character")
-                return;
+        if ( reader.ReadToDescendant("Character")) {
+            do {
+                int x = int.Parse(reader.GetAttribute("X"));
+                int y = int.Parse(reader.GetAttribute("Y"));
 
-            int x = int.Parse(reader.GetAttribute("X"));
-            int y = int.Parse(reader.GetAttribute("Y"));
+                Character c = CreateCharacter(tiles[x, y]);
 
-            Character c = CreateCharacter(tiles[x, y]);
-
-            c.ReadXml(reader);
+                c.ReadXml(reader);
+            } while (reader.ReadToNextSibling("Character"));
         }
     }
 }

@@ -8,9 +8,18 @@ using UnityEngine;
 
 public class Furniture : IXmlSerializable
 {
-    // This represents the BASE ile of the object , but in practice, large objects may 
+    public Dictionary<string, object> furnParams;
+    public Action<Furniture, float> updateActions;
+
+    public void Update(float deltaTime) {
+        if (updateActions != null) {
+            updateActions(this, deltaTime);
+        }
+    }
+
+    // This represents the BASE ile of the object , but in practice, large objects may
     // actually occupy multile tiles.
-    public Tile tile {get; protected set;}  
+    public Tile tile {get; protected set;}
 
     public string objectType {get; protected set;}
 
@@ -30,20 +39,35 @@ public class Furniture : IXmlSerializable
 
     public bool linksToNeighbour {get; protected set;}
 
-    protected Furniture() {}
+    protected Furniture() {
+        furnParams = new Dictionary<string, object>();
+    }
 
-    public static Furniture CreatePrototype(string objectType, float movementCost, int width = 1, int height = 1, bool linksToNeighbour = false) {
-        Furniture obj = new Furniture();
+    public Furniture(Furniture other) {
+        this.objectType = other.objectType;
+        this.movementCost = other.movementCost;
+        this.width = other.width;
+        this.height = other.height;
+        this.linksToNeighbour = other.linksToNeighbour;
 
-        obj.objectType = objectType;
-        obj.movementCost = movementCost;
-        obj.width = width;
-        obj.height = height;
-        obj.linksToNeighbour = linksToNeighbour;
+        this.furnParams = new Dictionary<string, object>(other.furnParams);
+        if (other.updateActions != null) {
+            this.updateActions = (Action<Furniture,float>) other.updateActions.Clone();
+        }
+    }
 
-        obj.funcPositionValidation = obj.__IsValidPosition;
+    virtual public Furniture Clone() {
+        return new Furniture(this);
+    }
 
-        return obj;
+    public Furniture(string objectType, float movementCost, int width = 1, int height = 1, bool linksToNeighbour = false) {
+        this.objectType = objectType;
+        this.movementCost = movementCost;
+        this.width = width;
+        this.height = height;
+        this.linksToNeighbour = linksToNeighbour;
+        this.funcPositionValidation = this.__IsValidPosition;
+        this.furnParams = new Dictionary<string, object>();
     }
 
     public static Furniture PlaceInstance(Furniture proto, Tile tile) {
@@ -51,13 +75,7 @@ public class Furniture : IXmlSerializable
             return null;
         }
 
-        Furniture obj = new Furniture();
-
-        obj.objectType = proto.objectType;
-        obj.movementCost = proto.movementCost;
-        obj.width = proto.width;
-        obj.height = proto.height;
-        obj.linksToNeighbour = proto.linksToNeighbour;
+        Furniture obj = proto.Clone();
 
         obj.tile = tile;
 

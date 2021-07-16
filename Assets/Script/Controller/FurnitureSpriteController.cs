@@ -113,7 +113,12 @@ public class FurnitureSpriteController : MonoBehaviour
 
         if (!furnitureSpriteMap.ContainsKey(finalSpriteName)) {
             Debug.LogError("Sprite Name doesn't exist:" + finalSpriteName);
-            return furnitureSpriteMap[furn.objectType];
+            if (furnitureSpriteMap.ContainsKey(furn.objectType)) {
+                return furnitureSpriteMap[furn.objectType];
+            } else {
+                Debug.LogError("Sprite Name doesn't exist:" + furn.objectType);
+                return null;
+            }
         } else {
             return furnitureSpriteMap[finalSpriteName];
         }
