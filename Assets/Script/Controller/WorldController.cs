@@ -92,8 +92,6 @@ public class WorldController : MonoBehaviour
         XmlSerializer serializer = new XmlSerializer(typeof(World));
         TextReader reader = new StringReader(PlayerPrefs.GetString("SaveGame00"));
 
-        Debug.Log(reader.ToString());
-
         world = (World) serializer.Deserialize(reader);
         reader.Close();
 

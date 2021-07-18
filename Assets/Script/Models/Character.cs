@@ -107,7 +107,18 @@ public class Character : IXmlSerializable
         Vector3 desTileVec = WorldController.Instance.GetTilePositionAtWorldCoord(destTile);
 
         float distToTravel = Vector3.Distance(curTileVec, desTileVec);
-        float distThisFrame = speed * deltaTime;
+
+        ENTERABILITY curEnterable = nextTile.IsEnterable();
+        if (curEnterable == ENTERABILITY.Never) {
+            Debug.LogError("FIXME: A character was trying to enter an unwalkable tile.");
+            destTile = nextTile = currTile;
+            pathAStar = null;
+            return;
+        } else if (curEnterable == ENTERABILITY.Soon) {
+            return;
+        }
+
+        float distThisFrame = speed / nextTile.movementCost * deltaTime;
 
         float perThisFrame = distThisFrame / distToTravel;
 
