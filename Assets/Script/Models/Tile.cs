@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using UnityEngine;
 
 public enum TileType {Empty, Floor};
+public enum ENTERABILITY { Yes, Never, Soon};
 public class Tile : IXmlSerializable{
     Action<Tile> cbTileTypeChanged;
 
@@ -33,6 +34,16 @@ public class Tile : IXmlSerializable{
     public int X {get; protected set;}
     public int Y {get; protected set;}
 
+    public ENTERABILITY IsEnterable() {
+        // This returns true if you can enter this tile right this moment;
+        if (movementCost <= 0) return ENTERABILITY.Never;
+
+        // check out furniture to see if it has a special block on enterablity;
+        if (furniture != null && furniture.IsEnterable != null)
+            return furniture.IsEnterable(furniture);
+        else
+            return ENTERABILITY.Yes;
+    }
     public float movementCost {
         get {
             if (Type == TileType.Empty) return 0;

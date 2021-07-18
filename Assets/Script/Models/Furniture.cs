@@ -8,8 +8,12 @@ using UnityEngine;
 
 public class Furniture : IXmlSerializable
 {
-    public Dictionary<string, object> furnParams;
+    public Dictionary<string, float> furnParams;
     public Action<Furniture, float> updateActions;
+
+    public Func<Furniture, string> getSpriteName;
+
+    public Func<Furniture, ENTERABILITY> IsEnterable;
 
     public void Update(float deltaTime) {
         if (updateActions != null) {
@@ -40,7 +44,7 @@ public class Furniture : IXmlSerializable
     public bool linksToNeighbour {get; protected set;}
 
     protected Furniture() {
-        furnParams = new Dictionary<string, object>();
+        furnParams = new Dictionary<string, float>();
     }
 
     public Furniture(Furniture other) {
@@ -50,10 +54,13 @@ public class Furniture : IXmlSerializable
         this.height = other.height;
         this.linksToNeighbour = other.linksToNeighbour;
 
-        this.furnParams = new Dictionary<string, object>(other.furnParams);
+        this.furnParams = new Dictionary<string, float>(other.furnParams);
         if (other.updateActions != null) {
             this.updateActions = (Action<Furniture,float>) other.updateActions.Clone();
         }
+
+        this.IsEnterable = other.IsEnterable;
+        this.getSpriteName = other.getSpriteName;
     }
 
     virtual public Furniture Clone() {
@@ -67,7 +74,7 @@ public class Furniture : IXmlSerializable
         this.height = height;
         this.linksToNeighbour = linksToNeighbour;
         this.funcPositionValidation = this.__IsValidPosition;
-        this.furnParams = new Dictionary<string, object>();
+        this.furnParams = new Dictionary<string, float>();
     }
 
     public static Furniture PlaceInstance(Furniture proto, Tile tile) {
@@ -248,12 +255,28 @@ public class Furniture : IXmlSerializable
         writer.WriteAttributeString("X", tile.X.ToString());
         writer.WriteAttributeString("Y", tile.Y.ToString());
         writer.WriteAttributeString("objectType", objectType.ToString());
-        writer.WriteAttributeString("movementCost", movementCost.ToString());
+        // writer.WriteAttributeString("movementCost", movementCost.ToString());
+
+        // add Furniture Parameters
+        foreach (string key in furnParams.Keys) {
+            writer.WriteStartElement("Param");
+            writer.WriteAttributeString("name", key);
+            writer.WriteAttributeString("value", furnParams[key].ToString());
+            writer.WriteEndElement();
+        }
     }
 
     public void ReadXml(XmlReader reader) {
         // X, Y and objectType have already been set and we should already
         // be assigned to a tile . so just read extra data.
-        movementCost = int.Parse(reader.GetAttribute("movementCost"));
+        // movementCost = int.Parse(reader.GetAttribute("movementCost"));
+
+        if (reader.ReadToDescendant("Param")) {
+            do {
+                string key = reader.GetAttribute("name");
+                float value = float.Parse( reader.GetAttribute("value"));
+                furnParams[key] = value;
+            } while ( reader.ReadToNextSibling("Param") );
+        }
     }
 }

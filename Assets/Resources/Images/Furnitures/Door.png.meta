@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8950cfbfd51c8de45a18dafdbd74adb9
+guid: 60116cdb62c486f419c544fdeb3e905f
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -7,7 +7,16 @@ TextureImporter:
     second: Door_0_0
   - first:
       213: 436563815456543028
-    second: Door_0_0
+    second: Door_0_1
+  - first:
+      213: -8689009931745917929
+    second: Door_0_2
+  - first:
+      213: 289144848352645085
+    second: Door_0_3
+  - first:
+      213: 6936692723106717497
+    second: Door_0_4
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -105,11 +114,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Door_0_1
+      name: Door_0_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 128
         width: 32
         height: 32
       alignment: 6
@@ -126,11 +135,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Door_0_0
+      name: Door_0_1
       rect:
         serializedVersion: 2
-        x: 32
-        y: 0
+        x: 0
+        y: 96
         width: 32
         height: 32
       alignment: 6
@@ -142,6 +151,69 @@ TextureImporter:
       bones: []
       spriteID: 43193162a7cfe0600800000000000000
       internalID: 436563815456543028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Door_0_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 64
+        width: 32
+        height: 32
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7148170e08f6a6780800000000000000
+      internalID: -8689009931745917929
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Door_0_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 32
+        width: 32
+        height: 32
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ddf81b625bf330400800000000000000
+      internalID: 289144848352645085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Door_0_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 32
+        height: 32
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 93f10dc8745144060800000000000000
+      internalID: 6936692723106717497
       vertices: []
       indices: 
       edges: []

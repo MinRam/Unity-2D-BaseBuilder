@@ -89,16 +89,20 @@ public class World : IXmlSerializable {
 
         CreateFurniturePrototype("Door",
                         new Furniture("Door",
-                                    0,   // Impassable
+                                    1,   // Impassable
                                     1,   // Width
                                     1,   // Height
-                                    true // Links to neighbours and "sort of" becomes part of a large object.
+                                    false // Links to neighbours and "sort of" becomes part of a large object.
                         ));
 
         // What if the object behaviours were scriptale? and therefore were part of the text file
         // we are reading in now?
-        furniturePrototypes["Door"].furnParams["openess"] = 0;
+        furniturePrototypes["Wall"].getSpriteName = FurnitureActions.Default_GetSpriteName;
+        furniturePrototypes["Door"].furnParams["openness"] = 0;
+        furniturePrototypes["Door"].furnParams["is_opening"] = 0;
         furniturePrototypes["Door"].updateActions += FurnitureActions.Door_UpdateAction;
+        furniturePrototypes["Door"].IsEnterable = FurnitureActions.Door_IsEnterable;
+        furniturePrototypes["Door"].getSpriteName = FurnitureActions.Door_GetSpriteName;
     }
 
     Furniture CreateFurniturePrototype(string objectName, Furniture installedObject) {

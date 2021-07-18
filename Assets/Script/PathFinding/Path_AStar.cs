@@ -84,6 +84,8 @@ public class Path_AStar
 
                 if (needAdd)
                     OpenSet.Enqueue(neighbor, heuristic_cost_neighbor);
+                else
+                    OpenSet.UpdatePriority(neighbor, heuristic_cost_neighbor);
             }
         }
     }

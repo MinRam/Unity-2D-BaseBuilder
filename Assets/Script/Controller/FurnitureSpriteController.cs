@@ -49,6 +49,16 @@ public class FurnitureSpriteController : MonoBehaviour
 
         furnitureGameObjectMap.Add(obj, obj_go);
 
+        // FIXME: this hardcode is not ideal!
+        if (obj.objectType == "Door") {
+            Tile nothTile = world.GetTileAt(obj.tile.X, obj.tile.Y - 1);
+
+            if (nothTile != null && nothTile.furniture != null && nothTile.furniture.objectType == "Wall") {
+                obj_go.transform.rotation = Quaternion.Euler( 0, 0, 90);
+                obj_go.transform.Translate(1f, 0, 0, Space.World);
+            }
+        }
+
         SpriteRenderer obj_sprite =  obj_go.AddComponent<SpriteRenderer>();
 
         // FIXME: we assume that the object must be a wall, so use
@@ -71,57 +81,12 @@ public class FurnitureSpriteController : MonoBehaviour
     }
 
     public Sprite GetSpriteForFurniture(Furniture furn) {
-        if (furn.linksToNeighbour == false) {
-            return furnitureSpriteMap[furn.objectType + "_"];
+        if (furn.getSpriteName != null) {
+            string spriteName = furn.getSpriteName(furn);
+            if (furnitureSpriteMap.ContainsKey(spriteName))
+                return furnitureSpriteMap[spriteName];
         }
-
-        StringBuilder spriteName = new StringBuilder(furn.objectType);
-        spriteName.Append("_");
-
-        Func<int,int, Furniture, bool> TileValue = (int index_x,int index_y, Furniture func) => {
-            Tile t = world.GetTileAt(index_x, index_y);
-            return t != null && t.furniture != null && t.furniture.objectType.Equals(func.objectType);
-        };
-
-        int x = furn.tile.X;
-        int y = furn.tile.Y;
-
-        int mask =  TileValue(x    , y + 1, furn) ? 1 : 0;
-            mask += TileValue(x + 1, y + 1, furn) ? 2 : 0;
-            mask += TileValue(x + 1, y    , furn) ? 4 : 0;
-            mask += TileValue(x + 1, y - 1, furn) ? 8 : 0;
-            mask += TileValue(x    , y - 1, furn) ? 16 : 0;
-            mask += TileValue(x - 1, y - 1, furn) ? 32 : 0;
-            mask += TileValue(x - 1, y    , furn) ? 64 : 0;
-            mask += TileValue(x - 1, y + 1, furn) ? 128 : 0;
-
-        byte original = (byte) mask;
-        if ((original | 254) < 255) {mask = mask & 125;}
-        if ((original | 251) < 255) {mask = mask & 245;}
-        if ((original | 239) < 255) {mask = mask & 215;}
-        if ((original | 191) < 255) {mask = mask & 95;}
-
-        int index = furn.GetSpriteIndex((byte) mask);
-        if (index >= 0 ) {
-            spriteName.Append(index);
-            spriteName.Append("_");
-            spriteName.Append(furn.GetTransform((byte)mask).ToString());
-        }
-
-        string finalSpriteName = spriteName.ToString();
-        // Debug.Log("Sprite Nam:" + finalSpriteName);
-
-        if (!furnitureSpriteMap.ContainsKey(finalSpriteName)) {
-            Debug.LogError("Sprite Name doesn't exist:" + finalSpriteName);
-            if (furnitureSpriteMap.ContainsKey(furn.objectType)) {
-                return furnitureSpriteMap[furn.objectType];
-            } else {
-                Debug.LogError("Sprite Name doesn't exist:" + furn.objectType);
-                return null;
-            }
-        } else {
-            return furnitureSpriteMap[finalSpriteName];
-        }
+        return furnitureSpriteMap[furn.objectType + "_0_0"];
     }
 
     public Sprite GetSpriteForFurniture(string objectType) {
