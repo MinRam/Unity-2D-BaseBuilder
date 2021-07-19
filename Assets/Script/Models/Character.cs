@@ -87,7 +87,7 @@ public class Character : IXmlSerializable
             // Get the next tile from the pathfinder.
             if (pathAStar == null || pathAStar.Length() == 0) {
                 // Generate a path to our destination.
-                pathAStar = new Path_AStar(currTile.World, currTile, destTile, isTouchDistance);
+                pathAStar = new Path_AStar(currTile.World, currTile, myJob.tile, isTouchDistance);
                 if (pathAStar.Length() == 0) {
                     // Debug.LogError("The Path_AStar returned no path to destination.");
                     // FIXME: Job should maybe be re-enqueue instead?
