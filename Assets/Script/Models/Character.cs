@@ -81,7 +81,7 @@ public class Character : IXmlSerializable
     }
 
     void Update_HandleMovementForJob(float deltaTime) {
-        if (currTile == destTile) return;
+        if (myJob == null || isTouchDistance(currTile, myJob.tile)) return;
 
         if (nextTile == null || nextTile == currTile) {
             // Get the next tile from the pathfinder.

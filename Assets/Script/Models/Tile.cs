@@ -44,12 +44,16 @@ public class Tile : IXmlSerializable{
         else
             return ENTERABILITY.Yes;
     }
+
+    // FIXME: this is just hardcoded for now. Basically just a reminder of something we
+    //       might want to do more in the furture.
+    const float baseTileMovementCost = 1; 
     public float movementCost {
         get {
             if (Type == TileType.Empty) return 0;
-            if (furniture == null) return 1;
+            if (furniture == null) return baseTileMovementCost;
 
-            return 1 * furniture.movementCost;
+            return baseTileMovementCost * furniture.movementCost;
         }
     }
 
