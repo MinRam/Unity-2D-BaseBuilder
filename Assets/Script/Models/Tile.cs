@@ -8,7 +8,6 @@ public enum TileType {Empty, Floor};
 public enum ENTERABILITY { Yes, Never, Soon};
 public class Tile : IXmlSerializable{
     Action<Tile> cbTileTypeChanged;
-
     TileType _type = TileType.Empty;
     public TileType Type
     {
@@ -27,6 +26,7 @@ public class Tile : IXmlSerializable{
         }
     }
 
+    public Room room {get; set;}
     Inventory inventory;
     public Furniture furniture {get;protected set;}
     public Job pendingFurnitureJob;
@@ -131,5 +131,18 @@ public class Tile : IXmlSerializable{
         // int x = int.Parse(reader.GetAttribute("X"));
         // int y = int.Parse(reader.GetAttribute("Y"));
         Type = (TileType) int.Parse(reader.GetAttribute("Type"));
+    }
+
+    public Tile North() {
+        return World.GetTileAt(X, Y + 1);
+    }
+    public Tile South() {
+        return World.GetTileAt(X, Y - 1);
+    }
+    public Tile East() {
+        return World.GetTileAt(X + 1, Y);
+    }
+    public Tile West() {
+        return World.GetTileAt(X - 1, Y);
     }
 }

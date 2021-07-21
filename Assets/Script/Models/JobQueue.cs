@@ -18,7 +18,7 @@ public class JobQueue
 
         if (cbJobCreated != null) {
             cbJobCreated(j);
-        } 
+        }
     }
 
     public Job Dequeue() {

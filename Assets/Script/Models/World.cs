@@ -11,6 +11,8 @@ public class World : IXmlSerializable {
     Tile[,] tiles;
     public List<Character> characters;
     public List<Furniture> furnitures;
+    public List<Room>      rooms;
+
     public Path_TileGraph tileGraph;
 
     Dictionary<string, Furniture> furniturePrototypes;
@@ -31,6 +33,27 @@ public class World : IXmlSerializable {
         CreateCharacter(GetTileAt(Width/2  , Height/2 ));
     }
 
+    public Room GetOutsideRoom() {
+        return rooms[0];
+    }
+
+    public void AddRoom(Room r) {
+        rooms.Add(r);
+    }
+
+    public void DeleteRoom(Room r) {
+        if (r == GetOutsideRoom()) {
+            Debug.LogError("Try to delete the outside room.");
+            return;
+        }
+        // Remove  this room from our rooms list.
+        rooms.Remove(r);
+
+        // All tiles that belongs to this room should be re-assigned to 
+        // the outside.
+        r.UnAssignAllTile();
+    }
+
     protected void SetupWorld(int width, int height) {
         jobQueue = new JobQueue();
 
@@ -38,11 +61,13 @@ public class World : IXmlSerializable {
         this.Height = height;
         tiles = new Tile[width, height];
 
+        Room defaultRoom = new Room();  // first room.
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 tiles[x,y] = new Tile(this, x, y);
                 tiles[x,y].RedgisterTileTypeChangedCallback(OnTileChanged);
+                tiles[x,y].room = defaultRoom;
             }
         }
 
@@ -50,6 +75,9 @@ public class World : IXmlSerializable {
 
         characters = new List<Character>();
         furnitures = new List<Furniture>();
+        rooms      = new List<Room>();
+
+        rooms.Add(defaultRoom);  // add the biggist room.
     }
 
     public void Update(float deltaTime) {
@@ -81,18 +109,20 @@ public class World : IXmlSerializable {
 
         CreateFurniturePrototype("Wall",
                         new Furniture("Wall",
-                                    0,   // Impassable
-                                    1,   // Width
-                                    1,   // Height
-                                    true // Links to neighbours and "sort of" becomes part of a large object.
+                            0,   // Impassable
+                            1,   // Width
+                            1,   // Height
+                            true, // Links to neighbours and "sort of" becomes part of a large object.
+                            true  // Enclose room.
                         ));
 
         CreateFurniturePrototype("Door",
                         new Furniture("Door",
-                                    1,   // Impassable
-                                    1,   // Width
-                                    1,   // Height
-                                    false // Links to neighbours and "sort of" becomes part of a large object.
+                            1,   // Impassable
+                            1,   // Width
+                            1,   // Height
+                            false, // Links to neighbours and "sort of" becomes part of a large object.
+                            true  // Enclose room.
                         ));
 
         // What if the object behaviours were scriptale? and therefore were part of the text file
@@ -119,14 +149,29 @@ public class World : IXmlSerializable {
             return null;
         }
 
+        float oldMoveCost = t.movementCost;
+
         Furniture obj = Furniture.PlaceInstance(furniturePrototypes[objectType], t);
 
         furnitures.Add(obj);
 
         if (null == obj) return null;
 
+        // recalculate our rooms.
+        if (obj.roomEnclosure) {
+            Room.DoRoomFloorFill(obj);
+        }
+
         if (cbFurnitureCreated != null) {
             cbFurnitureCreated(obj);
+        }
+
+        // Updating for pathfinding if needs.
+        if (obj.movementCost != oldMoveCost) {
+            // Since titles return movement cost as their base cost multiplied
+            // by the furniture's movement cost, a furniture movement cost
+            // of exactly 1 doesn't impact our pathfinding system, so we can
+            // occasionally avoid invalidating pathfinding graphs.
             InvalidateTileGraph(t);
         }
 
