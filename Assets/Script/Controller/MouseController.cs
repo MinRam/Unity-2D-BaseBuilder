@@ -50,6 +50,14 @@ public class MouseController : MonoBehaviour
         }
     }
 
+    public Vector3 GetMousePosition() {
+        return currFramePosition;
+    }
+
+    public Tile GetMouseOverTIle() {
+        return WorldController.Instance.GetTileAtWorldCoord(currFramePosition);
+    }
+
     void UpdateCameraMovement() {
         // move Mouse Camera
         if (Input.GetMouseButton(1) || Input.GetMouseButton(2)) {

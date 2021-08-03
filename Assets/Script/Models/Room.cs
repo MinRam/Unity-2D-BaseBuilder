@@ -31,11 +31,12 @@ public class Room
         if (tiles.Count == 0) return;
 
         Room outsiedRoom = this.tiles[0].World.GetOutsideRoom();
-        for (int i = 0; i < tiles.Count; ++i) {
-            outsiedRoom.AssignTIle(tiles[i]);
-        }
 
-        tiles.Clear();
+        // The <span>AssignTile</span> method will remove tile from old room. so we 
+        // don't need to clear the tiles parameter again.
+        while (tiles.Count > 0) {
+                outsiedRoom.AssignTIle(tiles[0]);
+        }
     }
 
     public static void DoRoomFloorFill(Furniture sourceFurniture) {
@@ -49,8 +50,8 @@ public class Room
 
         Room oldRoom = sourceFurniture.tile.room;
 
-        // try building a new rooom starting from the north.
-        foreach (Tile nT in sourceFurniture.tile.GetNeighbours()) {
+        // try building a new rooom starting from the neighbours (8).
+        foreach (Tile nT in sourceFurniture.tile.GetNeighbours(true)) {
             ActualFloodFill(nT, oldRoom);
         }
 
@@ -68,7 +69,7 @@ public class Room
         oldRoom.tiles = new List<Tile>();
 
         if (oldRoom != world.GetOutsideRoom()) {
-            if (oldRoom.tiles.Count > 0) 
+            if (oldRoom.tiles.Count > 0)
                 Debug.LogError("'oldroom' still have some tiles assigned to it. This is  clearly wrong.");
 
             world.DeleteRoom(oldRoom);
@@ -90,7 +91,7 @@ public class Room
 
         // This tile has a enclosure furniture(e.g. Wall, Door) in it, so clearly
         // we can't do a room here.
-        if (tile.furniture != null && tile.furniture.roomEnclosure) return;
+        if (tile.furniture != null && tile.furniture.roomEnclosure)  return;
 
         // If we get to this point, then we know that we need to create a new room.
         Room room = new Room();
@@ -103,7 +104,7 @@ public class Room
             if (checkTile.room == oldRoom) {
                 room.AssignTIle(checkTile);
 
-                Tile[] ns = checkTile.GetNeighbours();
+                Tile[] ns = checkTile.GetNeighbours(true);
 
                 foreach (Tile t2 in ns) {
                     // we have hit the open space (either by being the edge of the map or being an empty tile)
@@ -118,7 +119,7 @@ public class Room
 
                     // t2 is not null nor is it an empty tile. so just make sure it
                     // hasn't already been processed and isn't  a 'wall' type tile.
-                    if ( t2.room == oldRoom && (t2.furniture == null || !t2.furniture.roomEnclosure) ) {
+                    if ( t2.room == oldRoom && (t2.furniture == null || t2.furniture.roomEnclosure == false) ) {
                         tiles2Check.Enqueue(t2);
                     }
                 }
